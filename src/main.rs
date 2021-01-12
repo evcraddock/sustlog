@@ -39,15 +39,15 @@ fn main() {
         } => {
             let date = Local::now();
 
+            settings_map.insert("root-folder".to_string(), settings.get_setting("root-folder"));
             settings_map.insert("health_journal_root".to_string(), settings.get_health_journal_folder());
             settings_map.insert("health_journal_by_date".to_string(), settings.get_health_journal_folder_by_date(&date).unwrap());
             settings_map.insert("task_folder_by_date".to_string(), settings.get_task_folder_by_date(&date).unwrap());
             settings_map.insert("relative_template_folder".to_string(), settings.get_relative_template_folder().unwrap());
 
             let stype = SustenanceType::from_str(&sustenance_type).unwrap();
-            let sustenance = Sustenance::new(&food_name, stype, quantity, &settings_map); 
+            let sustenance = Sustenance::new(&food_name, stype, quantity as f32, &settings_map); 
             sustenance.save(&settings_map).expect("unable to save sustenance");
-            // sustenance.save(&settings.get_health_journal_folder_by_date(&Local::now()).unwrap()).unwrap();
         },
         Action::AddJournal => {
             let date = Local::now();

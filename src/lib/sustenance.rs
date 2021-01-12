@@ -23,7 +23,7 @@ pub struct Sustenance {
     pub id: String,
     pub name: String,
     pub sustenance_type: SustenanceType,
-    pub quantity: i32,
+    pub quantity: f32,
     pub unit: UnitType,
     pub template: String,
     pub ingredients: Vec<String>,
@@ -36,9 +36,7 @@ pub struct Sustenance {
 }
 
 impl Sustenance {
-    pub fn new(name: &str, sustenance_type: SustenanceType, quantity: i32, settings: &HashMap<String, String>) -> Sustenance {
-        // let file_path = &settings["health_journal_root"];
-
+    pub fn new(name: &str, sustenance_type: SustenanceType, quantity: f32, settings: &HashMap<String, String>) -> Sustenance {
         let newtemp = Template::find(name, sustenance_type, settings).unwrap();
         Sustenance {
             id: Uuid::new_v4().to_string(),

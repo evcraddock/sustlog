@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use toduitl::task::Task; 
+use toduitl::task_list::TaskList;
 use crate::date_format::*;
 use crate::sustenance_type::SustenanceType;
 
@@ -20,7 +21,7 @@ pub struct Template {
     pub name: String,
     pub sustenance_type: SustenanceType,
     pub unit: UnitType,
-    pub quantity: i32,
+    pub quantity: f32,
     pub ingredients: Vec<String>,
 
     pub path: String,
@@ -65,7 +66,7 @@ impl Template {
             ingredients: vec![],
             created: Local::now(),
             unit: UnitType::Nil,
-            quantity: 1,
+            quantity: 1.0,
         };
 
         let yml_template = match serde_yaml::to_string(&template) {
@@ -92,7 +93,10 @@ impl Template {
             self.name
         );
 
-        task.add(&description, &project_folder)?;
+        task.add(&description, &project_folder).expect("could not add task");
+
+        let list = TaskList::get("Queued", &settings["root-folder"]);
+        list.add(&task).expect("could not add task to list");
 
         Ok(())
     }
@@ -119,11 +123,14 @@ pub enum UnitType {
     ml,
     l,
     mg,
+    g,
     c,
     tsp,
     tbs,
     qt,
     pt,
     gal,
+    ft,
+    inch,
     Nil,
 }

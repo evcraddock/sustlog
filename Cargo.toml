@@ -1,6 +1,6 @@
 [package]
 name = "sustlog"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Erik Craddock <erik@erikvancraddock.com>"]
 edition = "2018"
 
@@ -17,7 +17,7 @@ path = "src/main.rs"
 [dependencies]
 config = { version = "0.9" }
 dirs = "2.0"
-toduit = { version = "0.1.1", path = "../toduit" }
+toduit = { version = "0.1.4", path = "../toduit" }
 structopt = { version = "0.3", default-features = false }
 serde = { version = "^1.0.60", features = ["derive"] }
 serde_derive = "1.0.104"
