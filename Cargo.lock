@@ -592,11 +592,12 @@ dependencies = [
 
 [[package]]
 name = "toduit"
-version = "0.1.4"
+version = "0.1.10"
 dependencies = [
  "chrono",
  "config",
  "dirs",
+ "num-traits 0.2.14",
  "pulldown-cmark",
  "serde 1.0.118",
  "serde_derive",

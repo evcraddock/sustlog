@@ -11,11 +11,11 @@ use std::fs;
 use std::fs::{File, OpenOptions};
 use std::io::Result;
 use std::io::prelude::*;
-use std::collections::*;
 
 use crate::date_format::*;
 use crate::template::{Template, UnitType};
 use crate::sustenance_type::SustenanceType;
+use crate::setting::*;
 
 #[derive(Serialize, Deserialize)]
 #[derive(Debug)]
@@ -36,8 +36,8 @@ pub struct Sustenance {
 }
 
 impl Sustenance {
-    pub fn new(name: &str, sustenance_type: SustenanceType, quantity: f32, settings: &HashMap<String, String>) -> Sustenance {
-        let newtemp = Template::find(name, sustenance_type, settings).unwrap();
+    pub fn new(name: &str, sustenance_type: SustenanceType, quantity: f32) -> Sustenance {
+        let newtemp = Template::find(name, sustenance_type).expect("could not create new template");
         Sustenance {
             id: Uuid::new_v4().to_string(),
             name: name.to_string(),
@@ -51,8 +51,9 @@ impl Sustenance {
         }
     }
 
-    pub fn save(&self, settings: &HashMap<String, String>) -> Result<()> {
-        let health_journal_path = &settings["health_journal_by_date"];
+    pub fn save(&self) -> Result<()> {
+        // let health_journal_path = &settings["health_journal_by_date"];
+        let health_journal_path = get_health_journal_folder();
         let file_path = format!(
             "{}/{:02}-{:02}-{}.yaml",
             health_journal_path,

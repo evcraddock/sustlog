@@ -9,12 +9,12 @@ use std::io::prelude::*;
 use std::io::BufReader;
 use std::io::Result;
 use std::path::{Path, PathBuf};
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use toduitl::task::Task; 
 use toduitl::task_list::TaskList;
 use crate::date_format::*;
 use crate::sustenance_type::SustenanceType;
+use crate::setting::*;
 
 #[derive(Serialize, Deserialize)]
 pub struct Template {
@@ -30,8 +30,8 @@ pub struct Template {
 }
 
 impl Template {
-    pub fn find(name: &str, sustenance_type: SustenanceType, settings: &HashMap<String, String>) -> Result<Template> {
-        let health_path = &settings["health_journal_root"];
+    pub fn find(name: &str, sustenance_type: SustenanceType) -> Result<Template> {
+        let health_path = get_health_journal_root();
         let file_path = format!(
             "{}/template/{}/{}.yaml",
             health_path,
@@ -42,7 +42,7 @@ impl Template {
         if !Path::new(&file_path).exists() {
             let type_path = format!("{}/template/{}", health_path, sustenance_type.to_string());
             fs::create_dir_all(type_path)?;
-            return Template::create(name, sustenance_type, health_path, settings);
+            return Template::create(name, sustenance_type);
         };
 
         let template = Template::get(&file_path).unwrap();
@@ -50,10 +50,10 @@ impl Template {
         Ok(template)
     }
 
-    pub fn create(name: &str, sustenance_type: SustenanceType, health_path: &str, settings: &HashMap<String, String>) -> Result<Template> {
+    pub fn create(name: &str, sustenance_type: SustenanceType) -> Result<Template> {
         let file_path = format!(
             "{}/template/{}/{}.yaml",
-            health_path,
+            get_health_journal_root(),
             sustenance_type.to_string(),
             name,
         );
@@ -77,26 +77,25 @@ impl Template {
         template_file.write_all(yml_template.as_bytes())?;
         template_file.sync_data()?;
 
-        template.create_task(&settings).expect("could not add health template task");
+        template.create_task().expect("could not add health template task");
 
         Ok(template)
     }
 
-    fn create_task(&self, settings: &HashMap<String, String>) -> Result<()> {
-        let project_folder = &settings["task_folder_by_date"];
+    fn create_task(&self) -> Result<()> {
         let task_name = format!("update {} health journal template", self.name);
-        let task = Task::new(&task_name, "Health/Health-Journal", "Projects", &self.created.year());
+        let task = Task::new(&task_name, "Health/Health-Journal", &self.created.year());
         let description = format!(
             "../{}/{}/{}.yaml",
-            &settings["relative_template_folder"],
+            get_relative_template_folder(),
             self.sustenance_type.to_string(),
             self.name
         );
 
-        task.add(&description, &project_folder).expect("could not add task");
+        task.add(&description).expect("could not add task");
 
-        let list = TaskList::get("Queued", &settings["root-folder"]);
-        list.add(&task).expect("could not add task to list");
+        let list = TaskList::get("Queued");
+        list.add(task).expect("could not add task to list");
 
         Ok(())
     }
